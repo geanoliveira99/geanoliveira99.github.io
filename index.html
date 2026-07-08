@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gean Oliveira — Visual Studio Code</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%230d3a8a'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='18' font-family='monospace'>G</text></svg>"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0b1729;
+      --bg-dark:   #060e1c;
+      --bg-side:   #091420;
+      --bg-tab:    #081322;
+      --border:    #1a2d45;
+      --text:      #c8d3de;
+      --text-dim:  #3a5a7a;
+      --text-mid:  #2a4060;
+      --blue:      #4fc3f7;
+      --blue-dark: #1565c0;
+      --blue-deep: #0d3a8a;
+      --yellow:    #e8c15a;
+      --green:     #c3e88d;
+      --purple:    #c792ea;
+      --orange:    #f78c6c;
+      --red:       #ff5370;
+      --key:       #82aaff;
+      --status-bg: #0d3a8a;
+    }
+
+    html, body { height: 100%; background: var(--bg-dark); }
+
+    body {
+      font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+      font-size: 13px;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── TITLE BAR ── */
+    #titlebar {
+      height: 30px;
+      background: var(--bg-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      user-select: none;
+    }
+    .trafficlights { position: absolute; left: 14px; display: flex; gap: 8px; }
+    .tl { width: 12px; height: 12px; border-radius: 50%; }
+    .tl.r { background: #ff5f57; }
+    .tl.y { background: #febc2e; }
+    .tl.g { background: #28c840; }
+    #titlebar span { color: var(--text-dim); font-size: 11px; }
+
+    /* ── TAB BAR ── */
+    #tabbar {
+      height: 37px;
+      background: var(--bg-tab);
+      display: flex;
+      align-items: flex-end;
+      flex-shrink: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+    #tabbar::-webkit-scrollbar { height: 3px; }
+    #tabbar::-webkit-scrollbar-track { background: var(--bg-tab); }
+    #tabbar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .tab {
+      height: 35px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+      font-size: 12px;
+      color: var(--text-dim);
+      border-right: 1px solid var(--border);
+      background: var(--bg-tab);
+      transition: color .15s;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .tab:hover { color: var(--text); background: #0a1828; }
+    .tab.active {
+      background: var(--bg);
+      color: var(--text);
+      border-bottom: 2px solid var(--blue);
+    }
+    .tab-icon { font-size: 10px; }
+    .tab-close {
+      width: 16px; height: 16px;
+      border-radius: 3px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      color: var(--text-dim);
+      opacity: 0;
+      transition: opacity .15s, background .15s;
+    }
+    .tab:hover .tab-close, .tab.active .tab-close { opacity: 1; }
+    .tab-close:hover { background: rgba(255,255,255,.1); color: var(--text); }
+
+    /* ── MAIN AREA ── */
+    #main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ── ACTIVITY BAR ── */
+    #actbar {
+      width: 48px;
+      background: var(--bg-dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 8px;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .act-btn {
+      width: 36px; height: 36px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      color: var(--text-dim);
+      font-size: 18px;
+      transition: color .15s, background .15s;
+      position: relative;
+    }
+    .act-btn:hover, .act-btn.active { color: var(--text); }
+    .act-btn.active::before {
+      content: '';
+      position: absolute; left: -8px; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 20px;
+      background: var(--blue);
+      border-radius: 0 2px 2px 0;
+    }
+    #actbar .spacer { flex: 1; }
+    .avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--blue-dark);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: bold; color: #fff;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+
+    /* ── SIDEBAR ── */
+    #sidebar {
+      width: 220px;
+      background: var(--bg-side);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    #sidebar-header {
+      padding: 10px 12px 6px;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+    .tree { flex: 1; overflow-y: auto; padding-bottom: 10px; }
+    .tree::-webkit-scrollbar { width: 4px; }
+    .tree::-webkit-scrollbar-track { background: transparent; }
+    .tree::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .tree-root {
+      padding: 2px 8px;
+      font-size: 12px;
+      color: var(--blue);
+      cursor: pointer;
+      display: flex; align-items: center; gap: 4px;
+      user-select: none;
+    }
+    .tree-folder {
+      padding: 2px 8px 2px 20px;
+      font-size: 12px;
+      color: var(--yellow);
+      cursor: pointer;
+      display: flex; align-items: center; gap: 4px;
+      user-select: none;
+    }
+    .tree-folder:hover { background: rgba(255,255,255,.04); }
+    .tree-file {
+      padding: 3px 8px 3px 36px;
+      font-size: 12px;
+      color: var(--text);
+      cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+      user-select: none;
+      transition: background .1s;
+    }
+    .tree-file:hover { background: rgba(255,255,255,.05); }
+    .tree-file.active { background: rgba(79,195,247,.1); color: var(--blue); }
+    .tree-file .ext-icon { font-size: 10px; }
+
+    #sidebar-footer {
+      padding: 8px 10px;
+      border-top: 1px solid var(--border);
+    }
+    .branch-info { font-size: 11px; color: var(--text-mid); display: flex; align-items: center; gap: 4px; }
+
+    /* ── EDITOR AREA ── */
+    #editor-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Breadcrumb */
+    #breadcrumb {
+      height: 24px;
+      background: var(--bg-side);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      font-size: 11px;
+      color: var(--text-dim);
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    #breadcrumb span { color: var(--text-dim); }
+    #breadcrumb .crumb { color: var(--text); }
+
+    /* Editor content */
+    #editor {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--bg);
+      display: flex;
+    }
+    #editor::-webkit-scrollbar { width: 8px; }
+    #editor::-webkit-scrollbar-track { background: var(--bg); }
+    #editor::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .line-numbers {
+      padding: 16px 0;
+      min-width: 46px;
+      text-align: right;
+      color: var(--text-mid);
+      font-size: 12px;
+      line-height: 1.7;
+      user-select: none;
+      flex-shrink: 0;
+      padding-right: 10px;
+      padding-left: 6px;
+    }
+    .code-content {
+      flex: 1;
+      padding: 16px 16px 16px 0;
+      font-size: 13px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-x: auto;
+    }
+    /* File content panels */
+    .file-panel { display: none; width: 100%; }
+    .file-panel.active { display: flex; }
+
+    /* Syntax colors */
+    .k { color: var(--key); }       /* keys/properties */
+    .s { color: var(--green); }     /* strings */
+    .n { color: var(--orange); }    /* numbers */
+    .b { color: var(--red); }       /* boolean */
+    .c { color: #546e7a; }          /* comments */
+    .kw { color: #c792ea; }         /* keywords */
+    .fn { color: var(--blue); }     /* function names */
+    .ty { color: var(--yellow); }   /* types */
+    .op { color: var(--text-dim); } /* operators */
+    .h1 { color: var(--blue); font-weight: bold; font-size: 1.3em; }
+    .h2 { color: var(--yellow); font-weight: bold; font-size: 1.1em; }
+    .h3 { color: var(--green); font-weight: bold; }
+    .md-link { color: var(--blue); text-decoration: underline; cursor: pointer; }
+    .md-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 10px;
+      margin: 2px;
+    }
+    .badge-blue { background: #0d3a8a; color: #4fc3f7; }
+    .badge-green { background: #1b3a1b; color: #c3e88d; }
+    .badge-purple { background: #2a1b3a; color: #c792ea; }
+    .md-table { border-collapse: collapse; margin: 8px 0; font-size: 12px; }
+    .md-table th { color: var(--yellow); border-bottom: 1px solid var(--border); padding: 4px 12px; text-align: left; }
+    .md-table td { color: var(--text); border-bottom: 1px solid var(--border); padding: 4px 12px; }
+    .section-sep { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+    .skill-icons { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+    .skill-tag {
+      background: rgba(79,195,247,.08);
+      border: 1px solid rgba(79,195,247,.2);
+      color: var(--blue);
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+    }
+
+    /* ── TERMINAL ── */
+    #terminal-wrap {
+      flex-shrink: 0;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+    #terminal-tabs {
+      height: 30px;
+      background: #07101e;
+      display: flex;
+      align-items: center;
+      padding: 0 4px;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+    .term-tab {
+      padding: 0 12px;
+      height: 28px;
+      display: flex; align-items: center;
+      font-size: 11px;
+      color: var(--text-dim);
+      cursor: pointer;
+      border-radius: 3px 3px 0 0;
+      transition: color .15s;
+      position: relative;
+    }
+    .term-tab:hover { color: var(--text); }
+    .term-tab.active { color: var(--text); }
+    .term-tab.active::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 2px; background: var(--blue);
+    }
+    #terminal {
+      height: 140px;
+      background: var(--bg-side);
+      padding: 8px 14px;
+      overflow-y: auto;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    #terminal::-webkit-scrollbar { width: 4px; }
+    #terminal::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .term-line { opacity: 0; animation: fadeIn .3s forwards; }
+    .term-prompt { color: var(--blue); }
+    .term-branch { color: var(--purple); }
+    .term-cmd { color: var(--text); }
+    .term-out { color: var(--green); }
+    .term-dim { color: var(--text-dim); }
+    .term-cursor {
+      display: inline-block;
+      width: 7px; height: 13px;
+      background: var(--text);
+      vertical-align: text-bottom;
+      border-radius: 1px;
+      animation: blink .9s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+    @keyframes fadeIn { to { opacity:1 } }
+
+    /* ── STATUS BAR ── */
+    #statusbar {
+      height: 26px;
+      background: var(--status-bg);
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      gap: 14px;
+      font-size: 11px;
+      color: rgba(200,211,222,.8);
+      flex-shrink: 0;
+      user-select: none;
+    }
+    #statusbar .left { display: flex; align-items: center; gap: 14px; }
+    #statusbar .right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+    .status-icon { background: var(--blue-dark); padding: 0 8px; height: 26px; display:flex;align-items:center; margin-left: -10px; }
+    .status-branch { display: flex; align-items: center; gap: 4px; }
+
+    /* ── MINIMAP ── */
+    #minimap {
+      width: 60px;
+      background: var(--bg-side);
+      border-left: 1px solid var(--border);
+      flex-shrink: 0;
+      padding: 16px 8px;
+      opacity: .6;
+      pointer-events: none;
+    }
+    .mm-line {
+      height: 2px;
+      border-radius: 1px;
+      margin-bottom: 4px;
+      background: var(--border);
+    }
+
+    /* Scrollbar for whole page */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      #sidebar { display: none; }
+      #minimap { display: none; }
+      #actbar { width: 36px; }
+      .tab { padding: 0 10px; font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TITLE BAR -->
+<div id="titlebar">
+  <div class="trafficlights">
+    <div class="tl r"></div>
+    <div class="tl y"></div>
+    <div class="tl g"></div>
+  </div>
+  <span>geanoliveira99 — Visual Studio Code</span>
+</div>
+
+<!-- TAB BAR -->
+<div id="tabbar">
+  <div class="tab active" data-file="profile">
+    <span class="tab-icon" style="color:#f5a623">{ }</span>
+    <span>profile.json</span>
+    <span class="tab-close">✕</span>
+  </div>
+  <div class="tab" data-file="readme">
+    <span class="tab-icon" style="color:#4fc3f7">M</span>
+    <span>README.md</span>
+    <span class="tab-close">✕</span>
+  </div>
+  <div class="tab" data-file="skills">
+    <span class="tab-icon" style="color:#c792ea">TS</span>
+    <span>skills.ts</span>
+    <span class="tab-close">✕</span>
+  </div>
+  <div class="tab" data-file="experience">
+    <span class="tab-icon" style="color:#4fc3f7">M</span>
+    <span>experience.md</span>
+    <span class="tab-close">✕</span>
+  </div>
+  <div class="tab" data-file="connect">
+    <span class="tab-icon" style="color:#4fc3f7">M</span>
+    <span>connect.md</span>
+    <span class="tab-close">✕</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- ACTIVITY BAR -->
+  <div id="actbar">
+    <div class="act-btn active" title="Explorer">&#xe002;</div>
+    <div class="act-btn" title="Search">&#x1F50D;</div>
+    <div class="act-btn" title="Source Control">⑂</div>
+    <div class="act-btn" title="Extensions">&#xe236;</div>
+    <div class="spacer"></div>
+    <div class="avatar" title="geanoliveira99">G</div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div id="sidebar-header">Explorador</div>
+    <div class="tree">
+      <div class="tree-root">▼ GEANOLIVEIRA99</div>
+      <div class="tree-folder" data-folder="about">▼ about</div>
+      <div class="tree-file active" data-file="profile">
+        <span class="ext-icon" style="color:#f5a623">{ }</span> profile.json
+      </div>
+      <div class="tree-file" data-file="readme">
+        <span class="ext-icon" style="color:#4fc3f7">M↓</span> README.md
+      </div>
+      <div class="tree-folder collapsed" data-folder="skills">▶ skills</div>
+      <div class="tree-file tree-hidden" data-file="skills">
+        <span class="ext-icon" style="color:#c792ea">TS</span> skills.ts
+      </div>
+      <div class="tree-folder collapsed" data-folder="experience">▶ experience</div>
+      <div class="tree-file tree-hidden" data-file="experience">
+        <span class="ext-icon" style="color:#4fc3f7">M↓</span> experience.md
+      </div>
+      <div class="tree-folder collapsed" data-folder="connect">▶ connect</div>
+      <div class="tree-file tree-hidden" data-file="connect">
+        <span class="ext-icon" style="color:#4fc3f7">M↓</span> connect.md
+      </div>
+      <div class="tree-file" style="padding-left:20px" data-file="">
+        <span class="ext-icon" style="color:#6c8099">txt</span> LICENSE
+      </div>
+      <div class="tree-file" style="padding-left:20px; color: var(--text-dim)" data-file="">
+        <span class="ext-icon">⚙</span> .gitignore
+      </div>
+    </div>
+    <div id="sidebar-footer">
+      <div class="branch-info">⑂ <span>main</span></div>
+    </div>
+  </div>
+
+  <!-- EDITOR WRAP -->
+  <div id="editor-wrap">
+    <!-- Breadcrumb -->
+    <div id="breadcrumb">
+      <span>GEANOLIVEIRA99</span>
+      <span>›</span>
+      <span id="bc-folder">about</span>
+      <span>›</span>
+      <span id="bc-file" class="crumb">profile.json</span>
+    </div>
+
+    <!-- Editor -->
+    <div id="editor">
+
+      <!-- profile.json -->
+      <div class="file-panel active" id="panel-profile">
+        <div class="line-numbers" id="ln-profile"></div>
+        <div class="code-content" id="code-profile"></div>
+      </div>
+
+      <!-- README.md -->
+      <div class="file-panel" id="panel-readme">
+        <div class="line-numbers" id="ln-readme"></div>
+        <div class="code-content" id="code-readme"></div>
+      </div>
+
+      <!-- skills.ts -->
+      <div class="file-panel" id="panel-skills">
+        <div class="line-numbers" id="ln-skills"></div>
+        <div class="code-content" id="code-skills"></div>
+      </div>
+
+      <!-- experience.md -->
+      <div class="file-panel" id="panel-experience">
+        <div class="line-numbers" id="ln-experience"></div>
+        <div class="code-content" id="code-experience"></div>
+      </div>
+
+      <!-- connect.md -->
+      <div class="file-panel" id="panel-connect">
+        <div class="line-numbers" id="ln-connect"></div>
+        <div class="code-content" id="code-connect"></div>
+      </div>
+
+    </div><!-- /editor -->
+
+  </div><!-- /editor-wrap -->
+
+  <!-- MINIMAP -->
+  <div id="minimap" id="minimap">
+    <div class="mm-line" style="width:80%"></div>
+    <div class="mm-line" style="width:60%;background:#82aaff44"></div>
+    <div class="mm-line" style="width:90%"></div>
+    <div class="mm-line" style="width:50%;background:#c3e88d44"></div>
+    <div class="mm-line" style="width:70%"></div>
+    <div class="mm-line" style="width:40%"></div>
+    <div class="mm-line" style="width:85%;background:#82aaff44"></div>
+    <div class="mm-line" style="width:60%"></div>
+    <div class="mm-line" style="width:75%;background:#c3e88d44"></div>
+    <div class="mm-line" style="width:50%"></div>
+    <div class="mm-line" style="width:65%"></div>
+    <div class="mm-line" style="width:40%"></div>
+    <div class="mm-line" style="width:80%"></div>
+    <div class="mm-line" style="width:55%;background:#f78c6c44"></div>
+    <div class="mm-line" style="width:70%"></div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- TERMINAL -->
+<div id="terminal-wrap">
+  <div id="terminal-tabs">
+    <div class="term-tab">PROBLEMS</div>
+    <div class="term-tab">OUTPUT</div>
+    <div class="term-tab">DEBUG CONSOLE</div>
+    <div class="term-tab active">TERMINAL &nbsp;<span style="background:#1a2d45;padding:1px 6px;border-radius:3px;font-size:10px">1</span></div>
+    <div class="term-tab">PORTS</div>
+  </div>
+  <div id="terminal">
+    <!-- JS populates this -->
+  </div>
+</div>
+
+<!-- STATUS BAR -->
+<div id="statusbar">
+  <div class="left">
+    <div class="status-icon">≡</div>
+    <div class="status-branch">⑂ main</div>
+    <span>○ 0 ↓ 0 ↑</span>
+  </div>
+  <div class="right">
+    <span id="st-pos">Ln 1, Col 1</span>
+    <span>Spaces: 2</span>
+    <span>UTF-8</span>
+    <span id="st-lang">JSON</span>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// FILE CONTENT DEFINITIONS
+// ═══════════════════════════════════════════════════
+
+const FILES = {
+  profile: {
+    folder: 'about',
+    lang: 'JSON',
+    raw: [
+      '{',
+      '  "nome":        "Gean Oliveira",',
+      '  "localidade":  "Brasil 🇧🇷",',
+      '  "role":        "Full Stack Developer & Mobile Developer",',
+      '  "empresa":     "Dom Porquito Agroindustrial",',
+      '  "foco": [',
+      '    "React", "Node.js", "TypeScript",',
+      '    "Android", "iOS", "Kotlin"',
+      '  ],',
+      '  "desde":       2024,',
+      '  "hobbies": [',
+      '    "Código limpo ✨",',
+      '    "Apps Mobile 📱",',
+      '    "ERP & Banco de Dados 🗄️"',
+      '  ],',
+      '  "contato":     "geansnswatch@gmail.com",',
+      '  "status":      "Disponível para Projetos 🚀",',
+      '  "openToWork":  true',
+      '}',
+    ],
+    highlight(line) {
+      return line
+        .replace(/("[\w\u00C0-\u024F\s&✨📱🗄️]+")(\s*:)/g, '<span class="k">$1</span><span class="op">$2</span>')
+        .replace(/:\s*("(?:[^"\\]|\\.)*")/g, (m, s) => m.replace(s, `<span class="s">${s}</span>`))
+        .replace(/:\s*(\d+)/g, (m, n) => m.replace(n, `<span class="n">${n}</span>`))
+        .replace(/\b(true|false|null)\b/g, '<span class="b">$1</span>')
+        .replace(/[{}\[\],]/g, '<span class="op">$&</span>');
+    }
+  },
+
+  readme: {
+    folder: 'about',
+    lang: 'Markdown',
+    raw: [
+      '# 👋 Olá, eu sou Gean Oliveira',
+      '',
+      '> Full Stack Developer & Mobile Developer baseado no Brasil 🇧🇷',
+      '> Desenvolvendo desde 2024 na Dom Porquito Agroindustrial.',
+      '',
+      '## 🚀 Sobre Mim',
+      '',
+      'Desenvolvedor com experiência em desenvolvimento web e mobile,',
+      'criando soluções completas do backend ao app publicado nas stores.',
+      'Trabalho com ERP Sankhya, Oracle SQL e APIs REST no dia a dia.',
+      '',
+      '## 🛠️ Stack Principal',
+      '',
+      '- **Frontend:** React, TypeScript, Tailwind CSS, Vite',
+      '- **Backend:**  Node.js, Express.js, APIs REST',
+      '- **Mobile:**   Android (Kotlin), iOS (Xcode/Capacitor)',
+      '- **Database:** Oracle SQL, MySQL, PL/SQL',
+      '- **DevOps:**   Git, GitHub, Vercel, CI/CD',
+      '',
+      '## 📊 Status',
+      '',
+      '![Status](https://img.shields.io/badge/Disponível_para_Projetos-6C63FF)',
+      '',
+      '## 🔗 Links',
+      '',
+      '- Instagram: [@geanoliveira99](https://instagram.com/geanoliveira99)',
+      '- WhatsApp:  [+55 68 98110-8001](https://wa.me/5568981108001)',
+      '- Email:     [geansnswatch@gmail.com](mailto:geansnswatch@gmail.com)',
+      '- GitHub:    [geanoliveira99](https://github.com/geanoliveira99)',
+    ],
+    highlight(line) {
+      if (line.startsWith('# '))  return `<span class="h1">${esc(line)}</span>`;
+      if (line.startsWith('## ')) return `<span class="h2">${esc(line)}</span>`;
+      if (line.startsWith('> '))  return `<span class="c">${esc(line)}</span>`;
+      if (line.startsWith('- **') || line.startsWith('- ')) {
+        return esc(line)
+          .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--yellow)">$1</strong>')
+          .replace(/\[(.+?)\]\((.+?)\)/g, '<a class="md-link" href="$2" target="_blank">$1</a>');
+      }
+      if (line.startsWith('![')) return `<span class="md-badge badge-blue">${esc(line.replace(/!\[.+?\]\(.+?\)/g,'🏷 badge'))}</span>`;
+      return esc(line)
+        .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--yellow)">$1</strong>')
+        .replace(/\[(.+?)\]\((.+?)\)/g, '<a class="md-link" href="$2" target="_blank">$1</a>');
+    }
+  },
+
+  skills: {
+    folder: 'skills',
+    lang: 'TypeScript',
+    raw: [
+      '// skills.ts — Stack de Tecnologias',
+      '',
+      'interface Skill {',
+      '  name:     string;',
+      '  level:    "expert" | "avancado" | "intermediario";',
+      '  since:    number;',
+      '}',
+      '',
+      'const stack: Skill[] = [',
+      '  // ── Frontend ────────────────────',
+      '  { name: "React",       level: "expert",        since: 2024 },',
+      '  { name: "TypeScript",  level: "avancado",      since: 2024 },',
+      '  { name: "Tailwind",    level: "expert",        since: 2024 },',
+      '  { name: "Vite",        level: "avancado",      since: 2024 },',
+      '',
+      '  // ── Backend ─────────────────────',
+      '  { name: "Node.js",     level: "expert",        since: 2024 },',
+      '  { name: "Express.js",  level: "avancado",      since: 2024 },',
+      '',
+      '  // ── Mobile ──────────────────────',
+      '  { name: "Android",     level: "avancado",      since: 2024 },',
+      '  { name: "Kotlin",      level: "avancado",      since: 2024 },',
+      '  { name: "iOS/Xcode",   level: "intermediario", since: 2024 },',
+      '  { name: "Capacitor",   level: "avancado",      since: 2024 },',
+      '',
+      '  // ── Database ────────────────────',
+      '  { name: "Oracle SQL",  level: "avancado",      since: 2024 },',
+      '  { name: "MySQL",       level: "avancado",      since: 2024 },',
+      '  { name: "PL/SQL",      level: "intermediario", since: 2024 },',
+      '',
+      '  // ── Tools ───────────────────────',
+      '  { name: "Git/GitHub",  level: "expert",        since: 2024 },',
+      '  { name: "VS Code",     level: "expert",        since: 2024 },',
+      '  { name: "Vercel",      level: "avancado",      since: 2024 },',
+      '];',
+      '',
+      'export default stack;',
+    ],
+    highlight(line) {
+      return esc(line)
+        .replace(/^(\/\/.*)$/g, '<span class="c">$1</span>')
+        .replace(/\b(interface|const|export|default|string|number|true|false)\b/g, '<span class="kw">$1</span>')
+        .replace(/"expert"/g, '<span class="s" style="color:#c3e88d">"expert"</span>')
+        .replace(/"avancado"/g, '<span class="s" style="color:#f5a623">"avancado"</span>')
+        .replace(/"intermediario"/g, '<span class="s" style="color:#f78c6c">"intermediario"</span>')
+        .replace(/"([^"]+)"/g, '<span class="s">"$1"</span>')
+        .replace(/\b(\d{4})\b/g, '<span class="n">$1</span>')
+        .replace(/\b(Skill)\b/g, '<span class="ty">$1</span>')
+        .replace(/[{}[\]:,;]/g, '<span class="op">$&</span>');
+    }
+  },
+
+  experience: {
+    folder: 'experience',
+    lang: 'Markdown',
+    raw: [
+      '# 🚀 Experiência Profissional',
+      '',
+      '## ⚛️ React Developer — Abr 2024 – Atual',
+      '',
+      '| Área               | Descrição                                        |',
+      '|--------------------|--------------------------------------------------|',
+      '| SPAs & Dashboards  | Hooks modernos, Context API e React Query        |',
+      '| UI/UX              | Framer Motion, Tailwind CSS, TypeScript          |',
+      '| Deploy & CI/CD     | Vercel com pipelines e deploys automáticos       |',
+      '| Componentes        | Design system próprio tipado end-to-end          |',
+      '',
+      '## 🟢 Node.js Backend — Abr 2024 – Atual',
+      '',
+      '| Área               | Descrição                                        |',
+      '|--------------------|--------------------------------------------------|',
+      '| APIs REST          | Endpoints e middleware com Express.js            |',
+      '| Banco de Dados     | Integração com SQL e NoSQL                       |',
+      '| Autenticação       | JWT, OAuth e controle de sessão seguro           |',
+      '| Deploy             | Servidores VPS e cloud                           |',
+      '',
+      '## 🤖 Android Developer — Abr 2024 – Atual',
+      '',
+      '| Área               | Descrição                                        |',
+      '|--------------------|--------------------------------------------------|',
+      '| Android Studio     | Desenvolvimento nativo com Kotlin                |',
+      '| Google Play        | Publicação e gerenciamento de versões            |',
+      '| Apps Híbridos      | WebView e Capacitor cross-platform               |',
+      '',
+      '## 🍎 iOS Developer — Abr 2024 – Atual',
+      '',
+      '| Área               | Descrição                                        |',
+      '|--------------------|--------------------------------------------------|',
+      '| Xcode              | Simuladores iOS/iPadOS                           |',
+      '| Capacitor          | Build iOS com bridge nativa                      |',
+      '| App Store          | Preparação e publicação de apps                  |',
+      '',
+      '## 🗄️ Oracle SQL & ERP Sankhya — Abr 2024 – Atual',
+      '',
+      '| Área               | Descrição                                        |',
+      '|--------------------|--------------------------------------------------|',
+      '| Queries Complexas  | Joins, CTEs e window functions                   |',
+      '| PL/SQL             | Procedures, functions e packages                 |',
+      '| ERP Sankhya        | Customizações, relatórios e API REST             |',
+    ],
+    highlight(line) {
+      if (line.startsWith('# '))  return `<span class="h1">${esc(line)}</span>`;
+      if (line.startsWith('## ')) return `<span class="h2">${esc(line)}</span>`;
+      if (line.startsWith('|')) {
+        const cells = esc(line).split('|').map(c => c.trim()).filter(Boolean);
+        if (cells.every(c => /^[-\s]+$/.test(c))) return `<span class="op">${esc(line)}</span>`;
+        return `<span style="color:var(--text-dim)">│</span>` +
+          cells.map((c, i) => `<span style="color:${i===0?'var(--yellow)':'var(--text)'}">${c}</span>`).join(`<span style="color:var(--text-dim)"> │ </span>`) +
+          `<span style="color:var(--text-dim)">│</span>`;
+      }
+      return esc(line);
+    }
+  },
+
+  connect: {
+    folder: 'connect',
+    lang: 'Markdown',
+    raw: [
+      '# 🔗 Conecte-se Comigo',
+      '',
+      '## 📬 Contato Direto',
+      '',
+      '| Canal      | Link                                             |',
+      '|------------|--------------------------------------------------|',
+      '| Instagram  | [@geanoliveira99](https://instagram.com/geanoliveira99) |',
+      '| WhatsApp   | [+55 68 98110-8001](https://wa.me/5568981108001) |',
+      '| Email      | [geansnswatch@gmail.com](mailto:geansnswatch@gmail.com) |',
+      '| GitHub     | [geanoliveira99](https://github.com/geanoliveira99) |',
+      '',
+      '## 🏢 Empresa',
+      '',
+      '| Info       | Detalhe                                          |',
+      '|------------|--------------------------------------------------|',
+      '| Nome       | Dom Porquito Agroindustrial                      |',
+      '| Cargo      | Full Stack & Mobile Developer                    |',
+      '| Desde      | Abril 2024                                       |',
+      '',
+      '## 🌍 Localização',
+      '',
+      '> Brasil 🇧🇷 · Disponível para projetos remotos',
+      '',
+      '## 💼 Status',
+      '',
+      '> ✅ Disponível para Projetos Freelance & Colaborações',
+      '',
+      '---',
+      '',
+      '> "Código limpo hoje, manutenção fácil amanhã." — Gean',
+    ],
+    highlight(line) {
+      if (line.startsWith('# '))  return `<span class="h1">${esc(line)}</span>`;
+      if (line.startsWith('## ')) return `<span class="h2">${esc(line)}</span>`;
+      if (line.startsWith('> '))  return `<span class="c" style="color:#546e7a;border-left:3px solid var(--border);padding-left:8px">${esc(line.slice(2))}</span>`;
+      if (line.startsWith('---')) return `<hr class="section-sep"/>`;
+      if (line.startsWith('|')) {
+        const cells = esc(line).split('|').map(c => c.trim()).filter(Boolean);
+        if (cells.every(c => /^[-\s]+$/.test(c))) return `<span class="op">${esc(line)}</span>`;
+        return `<span style="color:var(--text-dim)">│</span>` +
+          cells.map((c, i) => `<span style="color:${i===0?'var(--yellow)':'var(--text)'}">${c.replace(/\[(.+?)\]\((.+?)\)/g,'<a class="md-link" href="$2" target="_blank">$1</a>')}</span>`).join(`<span style="color:var(--text-dim)"> │ </span>`) +
+          `<span style="color:var(--text-dim)">│</span>`;
+      }
+      return esc(line);
+    }
+  }
+};
+
+// ═══════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function buildFile(key) {
+  const f = FILES[key];
+  if (!f) return;
+  const lnEl = document.getElementById('ln-' + key);
+  const codeEl = document.getElementById('code-' + key);
+  if (!lnEl || !codeEl) return;
+  if (lnEl.dataset.built) return; // already built
+  lnEl.dataset.built = '1';
+  lnEl.innerHTML = f.raw.map((_,i) => i+1).join('<br>');
+  codeEl.innerHTML = f.raw.map(l => f.highlight(l)).join('<br>');
+}
+
+// Pre-build all files
+Object.keys(FILES).forEach(buildFile);
+
+// ═══════════════════════════════════════════════════
+// TAB / FILE SWITCHING
+// ═══════════════════════════════════════════════════
+
+const BREADCRUMB_MAP = {
+  profile:    { folder: 'about',      file: 'profile.json' },
+  readme:     { folder: 'about',      file: 'README.md' },
+  skills:     { folder: 'skills',     file: 'skills.ts' },
+  experience: { folder: 'experience', file: 'experience.md' },
+  connect:    { folder: 'connect',    file: 'connect.md' },
+};
+
+function switchFile(key) {
+  if (!FILES[key]) return;
+
+  // Tabs
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.file === key));
+
+  // Panels
+  document.querySelectorAll('.file-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + key));
+
+  // Sidebar files
+  document.querySelectorAll('.tree-file').forEach(t => t.classList.toggle('active', t.dataset.file === key));
+
+  // Breadcrumb
+  const bc = BREADCRUMB_MAP[key];
+  if (bc) {
+    document.getElementById('bc-folder').textContent = bc.folder;
+    document.getElementById('bc-file').textContent = bc.file;
+  }
+
+  // Status bar lang
+  document.getElementById('st-lang').textContent = FILES[key].lang;
+
+  // Reset scroll
+  document.getElementById('editor').scrollTop = 0;
+}
+
+// Tab clicks
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', e => {
+    if (e.target.classList.contains('tab-close')) return;
+    switchFile(tab.dataset.file);
+  });
+});
+
+// Sidebar file clicks
+document.querySelectorAll('.tree-file').forEach(file => {
+  file.addEventListener('click', () => {
+    if (file.dataset.file) switchFile(file.dataset.file);
+  });
+});
+
+// Sidebar folder toggle
+document.querySelectorAll('.tree-folder').forEach(folder => {
+  folder.addEventListener('click', () => {
+    const key = folder.dataset.folder;
+    const isCollapsed = folder.classList.toggle('collapsed');
+    folder.textContent = (isCollapsed ? '▶ ' : '▼ ') + key;
+    // Show/hide children
+    const fileEl = document.querySelector(`.tree-file[data-file="${key}"]`);
+    if (fileEl) fileEl.classList.toggle('tree-hidden', isCollapsed);
+  });
+});
+
+// ═══════════════════════════════════════════════════
+// TERMINAL ANIMATION
+// ═══════════════════════════════════════════════════
+
+const TERM_SEQUENCE = [
+  { type: 'dim',    text: 'Last login: Wed, 08 Jul 2026 20:13:58 GMT on ttys001' },
+  { type: 'prompt', text: '➜ ', branch: '(main) ', cmd: 'whoami' },
+  { type: 'out',    text: 'gean oliveira' },
+  { type: 'prompt', text: '➜ ', branch: '(main) ', cmd: 'cat sobre.txt' },
+  { type: 'out',    text: 'Full Stack & Mobile Developer | React · Node.js · Kotlin · Android · iOS' },
+  { type: 'prompt', text: '➜ ', branch: '(main) ', cmd: 'ls -la ~/links' },
+  { type: 'out',    text: 'drwx──── instagram   @geanoliveira99' },
+  { type: 'out',    text: 'drwx──── whatsapp    wa.me/5568981108001' },
+  { type: 'out',    text: 'drwx──── email       geansnswatch@gmail.com' },
+  { type: 'prompt', text: '➜ ', branch: '(main) ', cmd: 'echo $STATUS' },
+  { type: 'out',    text: '✅ Disponível para Projetos' },
+  { type: 'cursor' },
+];
+
+const termEl = document.getElementById('terminal');
+let termIndex = 0;
+let termLoop;
+
+function renderTermLine(item) {
+  const div = document.createElement('div');
+  div.className = 'term-line';
+  if (item.type === 'dim') {
+    div.innerHTML = `<span class="term-dim">${item.text}</span>`;
+  } else if (item.type === 'prompt') {
+    div.innerHTML = `<span class="term-prompt">${item.text}</span><span class="term-dim">~/geanoliveira99 </span><span class="term-branch">${item.branch}</span><span class="term-cmd">${item.cmd}</span>`;
+  } else if (item.type === 'out') {
+    div.innerHTML = `<span class="term-out">${item.text}</span>`;
+  } else if (item.type === 'cursor') {
+    div.innerHTML = `<span class="term-prompt">➜ </span><span class="term-dim">~/geanoliveira99 </span><span class="term-branch">(main) </span><span class="term-cursor"></span>`;
+  }
+  termEl.appendChild(div);
+  termEl.scrollTop = termEl.scrollHeight;
+}
+
+function runTerminal() {
+  termEl.innerHTML = '';
+  termIndex = 0;
+  function next() {
+    if (termIndex >= TERM_SEQUENCE.length) {
+      // loop after pause
+      termLoop = setTimeout(() => runTerminal(), 4000);
+      return;
+    }
+    const item = TERM_SEQUENCE[termIndex++];
+    renderTermLine(item);
+    const delay = item.type === 'cursor' ? 999999 :
+                  item.type === 'prompt' ? 600 : 250;
+    termLoop = setTimeout(next, delay);
+  }
+  next();
+}
+
+runTerminal();
+
+// ═══════════════════════════════════════════════════
+// STATUS BAR — track cursor pos on click
+// ═══════════════════════════════════════════════════
+document.getElementById('editor').addEventListener('click', () => {
+  const r = Math.floor(Math.random() * 30) + 1;
+  const c = Math.floor(Math.random() * 40) + 1;
+  document.getElementById('st-pos').textContent = `Ln ${r}, Col ${c}`;
+});
+
+// ═══════════════════════════════════════════════════
+// FOLDER EXPAND: make skills/experience/connect visible by default
+// ═══════════════════════════════════════════════════
+document.querySelectorAll('.tree-folder.collapsed').forEach(f => {
+  // keep collapsed on start — user can expand
+});
+</script>
+
+</body>
+</html>
