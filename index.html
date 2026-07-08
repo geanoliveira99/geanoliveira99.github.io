@@ -1030,6 +1030,27 @@ document.getElementById('editor').addEventListener('click', () => {
 document.querySelectorAll('.tree-folder.collapsed').forEach(f => {
   // keep collapsed on start — user can expand
 });
+
+// ═══════════════════════════════════════════════════
+// URL PARAM — open tab from ?tab=skills etc.
+// e.g. https://geanoliveira99.github.io/?tab=skills
+// ═══════════════════════════════════════════════════
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const tab = params.get('tab');
+  if (tab && FILES[tab]) {
+    switchFile(tab);
+    // If the folder is collapsed, expand it
+    const folderKey = FILES[tab].folder;
+    const folderEl = document.querySelector(`.tree-folder[data-folder="${folderKey}"]`);
+    if (folderEl && folderEl.classList.contains('collapsed')) {
+      folderEl.classList.remove('collapsed');
+      folderEl.textContent = '▼ ' + folderKey;
+      const fileEl = document.querySelector(`.tree-file[data-file="${tab}"]`);
+      if (fileEl) fileEl.classList.remove('tree-hidden');
+    }
+  }
+})();
 </script>
 
 </body>
