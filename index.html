@@ -610,6 +610,41 @@
 
 <script>
 // ═══════════════════════════════════════════════════
+// ICON MAP — tokens replaced AFTER esc(), so SVG renders correctly
+// ═══════════════════════════════════════════════════
+
+function icon(path, w) {
+  w = w || 13;
+  return `<svg width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin:0 2px">${path}</svg>`;
+}
+
+const ICONS = {
+  '[ROCKET]':    icon('<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>'),
+  '[WAVE]':      icon('<path d="M18 11V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>'),
+  '[WRENCH]':    icon('<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>'),
+  '[CHART]':     icon('<line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/>'),
+  '[LINK]':      icon('<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>'),
+  '[ATOM]':      icon('<circle cx="12" cy="12" r="1"/><path d="M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9-4.54-4.52-9.87-6.54-11.9-4.5-2.04 2.03-.02 7.36 4.5 11.9 4.54 4.52 9.87 6.54 11.9 4.5z"/><path d="M15.7 15.7c4.52-4.54 6.54-9.87 4.5-11.9-2.03-2.04-7.36-.02-11.9 4.5-4.52 4.54-6.54 9.87-4.5 11.9 2.03 2.04 7.36.02 11.9-4.5z"/>'),
+  '[ANDROID]':   icon('<rect width="14" height="8" x="5" y="2" rx="2"/><rect width="20" height="12" x="2" y="10" rx="2"/><path d="M7 22v-2"/><path d="M17 22v-2"/>'),
+  '[APPLE]':     icon('<path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06z"/><path d="M10 2c0 2.5 2 4 4 4"/>'),
+  '[DB]':        icon('<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/>'),
+  '[MAIL]':      icon('<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>'),
+  '[BUILDING]':  icon('<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>'),
+  '[GLOBE]':     icon('<circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>'),
+  '[BRIEFCASE]': icon('<rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>'),
+  '[CHECK]':     icon('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'),
+  '[STAR]':      icon('<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'),
+  '[PHONE]':     icon('<rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/>'),
+  '[TAG]':       icon('<path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/>'),
+  '[BR]':        '<span style="display:inline-block;font-size:9px;font-family:monospace;border:1px solid #3a5a7a;padding:0 3px;border-radius:2px;color:#c3e88d;vertical-align:middle;margin:0 2px">BR</span>',
+  '[DOTGREEN]':  '<span style="display:inline-block;width:9px;height:9px;background:#4caf50;border-radius:50%;vertical-align:middle;margin:0 2px"></span>',
+};
+
+function applyIcons(s) {
+  return Object.keys(ICONS).reduce((acc, token) => acc.split(token).join(ICONS[token]), s);
+}
+
+// ═══════════════════════════════════════════════════
 // FILE CONTENT DEFINITIONS
 // ═══════════════════════════════════════════════════
 
@@ -620,7 +655,7 @@ const FILES = {
     raw: [
       '{',
       '  "nome":        "Gean Oliveira",',
-      '  "localidade":  "Brasil <span style="display:inline-block;font-size:9px;font-family:monospace;border:1px solid #3a5a7a;padding:0 3px;border-radius:2px;color:#c3e88d;vertical-align:middle;margin:0 2px">BR</span>",',
+      '  "localidade":  "Brasil [BR]",',
       '  "role":        "Full Stack Developer & Mobile Developer",',
       '  "empresa":     "Dom Porquito Agroindustrial",',
       '  "foco": [',
@@ -629,22 +664,23 @@ const FILES = {
       '  ],',
       '  "desde":       2024,',
       '  "hobbies": [',
-      '    "Código limpo <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin:0 2px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>",',
-      '    "Apps Mobile <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin:0 2px"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/></svg>",',
-      '    "ERP & Banco de Dados <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin:0 2px"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>"',
+      '    "Codigo limpo [STAR]",',
+      '    "Apps Mobile [PHONE]",',
+      '    "ERP & Banco de Dados [DB]"',
       '  ],',
       '  "contato":     "geansnswatch@gmail.com",',
-      '  "status":      "Disponível para Projetos <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin:0 2px"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>",',
+      '  "status":      "Disponivel para Projetos [ROCKET]",',
       '  "openToWork":  true',
       '}',
     ],
     highlight(line) {
-      return line
-        .replace(/("[\w\u00C0-\u024F\s&]+")(\s*:)/g, '<span class="k">$1</span><span class="op">$2</span>')
-        .replace(/:\s*("(?:[^"\\]|\\.)*")/g, (m, s) => m.replace(s, `<span class="s">${s}</span>`))
+      const escaped = esc(line)
+        .replace(/(&quot;[\w\u00C0-\u024F\s&]+&quot;)(\s*:)/g, '<span class="k">$1</span><span class="op">$2</span>')
+        .replace(/:\s*(&quot;(?:[^&]|&(?!quot;))*&quot;)/g, (m, s) => m.replace(s, `<span class="s">${s}</span>`))
         .replace(/:\s*(\d+)/g, (m, n) => m.replace(n, `<span class="n">${n}</span>`))
         .replace(/\b(true|false|null)\b/g, '<span class="b">$1</span>')
         .replace(/[{}\[\],]/g, '<span class="op">$&</span>');
+      return applyIcons(escaped);
     }
   },
 
@@ -652,18 +688,18 @@ const FILES = {
     folder: 'about',
     lang: 'Markdown',
     raw: [
-      '# <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin:0 2px"><path d="M18 11V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg> Olá, eu sou Gean Oliveira',
+      '# [WAVE] Ola, eu sou Gean Oliveira',
       '',
-      '> Full Stack Developer & Mobile Developer baseado no Brasil <span style="display:inline-block;font-size:9px;font-family:monospace;border:1px solid #3a5a7a;padding:0 3px;border-radius:2px;color:#c3e88d;vertical-align:middle;margin:0 2px">BR</span>',
+      '> Full Stack Developer & Mobile Developer baseado no Brasil [BR]',
       '> Desenvolvendo desde 2024 na Dom Porquito Agroindustrial.',
       '',
-      '## <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin:0 2px"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg> Sobre Mim',
+      '## [ROCKET] Sobre Mim',
       '',
-      'Desenvolvedor com experiência em desenvolvimento web e mobile,',
-      'criando soluções completas do backend ao app publicado nas stores.',
+      'Desenvolvedor com experiencia em desenvolvimento web e mobile,',
+      'criando solucoes completas do backend ao app publicado nas stores.',
       'Trabalho com ERP Sankhya, Oracle SQL e APIs REST no dia a dia.',
       '',
-      '## <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin:0 2px"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Stack Principal',
+      '## [WRENCH] Stack Principal',
       '',
       '- **Frontend:** React, TypeScript, Tailwind CSS, Vite',
       '- **Backend:**  Node.js, Express.js, APIs REST',
@@ -671,11 +707,11 @@ const FILES = {
       '- **Database:** Oracle SQL, MySQL, PL/SQL',
       '- **DevOps:**   Git, GitHub, Vercel, CI/CD',
       '',
-      '## <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin:0 2px"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg> Status',
+      '## [CHART] Status',
       '',
-      '![Status](https://img.shields.io/badge/Disponível_para_Projetos-6C63FF)',
+      '> Disponivel para Projetos [ROCKET]',
       '',
-      '## <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin:0 2px"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Links',
+      '## [LINK] Links',
       '',
       '- Instagram: [@geanoliveira99](https://instagram.com/geanoliveira99)',
       '- WhatsApp:  [+55 68 98110-8001](https://wa.me/5568981108001)',
@@ -683,18 +719,15 @@ const FILES = {
       '- GitHub:    [geanoliveira99](https://github.com/geanoliveira99)',
     ],
     highlight(line) {
-      if (line.startsWith('# '))  return `<span class="h1">${esc(line)}</span>`;
-      if (line.startsWith('## ')) return `<span class="h2">${esc(line)}</span>`;
-      if (line.startsWith('> '))  return `<span class="c">${esc(line)}</span>`;
-      if (line.startsWith('- **') || line.startsWith('- ')) {
-        return esc(line)
+      if (line.startsWith('# '))  return applyIcons(`<span class="h1">${esc(line)}</span>`);
+      if (line.startsWith('## ')) return applyIcons(`<span class="h2">${esc(line)}</span>`);
+      if (line.startsWith('> '))  return applyIcons(`<span class="c">${esc(line)}</span>`);
+      if (line.startsWith('- ')) {
+        return applyIcons(esc(line)
           .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--yellow)">$1</strong>')
-          .replace(/\[(.+?)\]\((.+?)\)/g, '<a class="md-link" href="$2" target="_blank">$1</a>');
+          .replace(/\[(.+?)\]\((.+?)\)/g, '<a class="md-link" href="$2" target="_blank">$1</a>'));
       }
-      if (line.startsWith('![')) return `<span class="md-badge badge-blue">${esc(line.replace(/!\[.+?\]\(.+?\)/g,'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin:0 2px"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg> badge'))}</span>`;
-      return esc(line)
-        .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--yellow)">$1</strong>')
-        .replace(/\[(.+?)\]\((.+?)\)/g, '<a class="md-link" href="$2" target="_blank">$1</a>');
+      return applyIcons(esc(line));
     }
   },
 
@@ -702,7 +735,7 @@ const FILES = {
     folder: 'skills',
     lang: 'TypeScript',
     raw: [
-      '// skills.ts — Stack de Tecnologias',
+      '// skills.ts -- Stack de Tecnologias',
       '',
       'interface Skill {',
       '  name:     string;',
@@ -711,28 +744,28 @@ const FILES = {
       '}',
       '',
       'const stack: Skill[] = [',
-      '  // ── Frontend ────────────────────',
+      '  // -- Frontend ----------------------------',
       '  { name: "React",       level: "expert",        since: 2024 },',
       '  { name: "TypeScript",  level: "avancado",      since: 2024 },',
       '  { name: "Tailwind",    level: "expert",        since: 2024 },',
       '  { name: "Vite",        level: "avancado",      since: 2024 },',
       '',
-      '  // ── Backend ─────────────────────',
+      '  // -- Backend -----------------------------',
       '  { name: "Node.js",     level: "expert",        since: 2024 },',
       '  { name: "Express.js",  level: "avancado",      since: 2024 },',
       '',
-      '  // ── Mobile ──────────────────────',
+      '  // -- Mobile ------------------------------',
       '  { name: "Android",     level: "avancado",      since: 2024 },',
       '  { name: "Kotlin",      level: "avancado",      since: 2024 },',
       '  { name: "iOS/Xcode",   level: "intermediario", since: 2024 },',
       '  { name: "Capacitor",   level: "avancado",      since: 2024 },',
       '',
-      '  // ── Database ────────────────────',
+      '  // -- Database ----------------------------',
       '  { name: "Oracle SQL",  level: "avancado",      since: 2024 },',
       '  { name: "MySQL",       level: "avancado",      since: 2024 },',
       '  { name: "PL/SQL",      level: "intermediario", since: 2024 },',
       '',
-      '  // ── Tools ───────────────────────',
+      '  // -- Tools -------------------------------',
       '  { name: "Git/GitHub",  level: "expert",        since: 2024 },',
       '  { name: "VS Code",     level: "expert",        since: 2024 },',
       '  { name: "Vercel",      level: "avancado",      since: 2024 },',
@@ -744,10 +777,10 @@ const FILES = {
       return esc(line)
         .replace(/^(\/\/.*)$/g, '<span class="c">$1</span>')
         .replace(/\b(interface|const|export|default|string|number|true|false)\b/g, '<span class="kw">$1</span>')
-        .replace(/"expert"/g, '<span class="s" style="color:#c3e88d">"expert"</span>')
-        .replace(/"avancado"/g, '<span class="s" style="color:#f5a623">"avancado"</span>')
-        .replace(/"intermediario"/g, '<span class="s" style="color:#f78c6c">"intermediario"</span>')
-        .replace(/"([^"]+)"/g, '<span class="s">"$1"</span>')
+        .replace(/&quot;expert&quot;/g, '<span class="s" style="color:#c3e88d">&quot;expert&quot;</span>')
+        .replace(/&quot;avancado&quot;/g, '<span class="s" style="color:#f5a623">&quot;avancado&quot;</span>')
+        .replace(/&quot;intermediario&quot;/g, '<span class="s" style="color:#f78c6c">&quot;intermediario&quot;</span>')
+        .replace(/&quot;([^&]+)&quot;/g, '<span class="s">&quot;$1&quot;</span>')
         .replace(/\b(\d{4})\b/g, '<span class="n">$1</span>')
         .replace(/\b(Skill)\b/g, '<span class="ty">$1</span>')
         .replace(/[{}[\]:,;]/g, '<span class="op">$&</span>');
@@ -758,59 +791,59 @@ const FILES = {
     folder: 'experience',
     lang: 'Markdown',
     raw: [
-      '# <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin:0 2px"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg> Experiência Profissional',
+      '# [ROCKET] Experiencia Profissional',
       '',
-      '## <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin:0 2px"><circle cx="12" cy="12" r="1"/><path d="M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9-4.54-4.52-9.87-6.54-11.9-4.5-2.04 2.03-.02 7.36 4.5 11.9 4.54 4.52 9.87 6.54 11.9 4.5z"/><path d="M15.7 15.7c4.52-4.54 6.54-9.87 4.5-11.9-2.03-2.04-7.36-.02-11.9 4.5-4.52 4.54-6.54 9.87-4.5 11.9 2.03 2.04 7.36.02 11.9-4.5z"/></svg> React Developer — Abr 2024 – Atual',
+      '## [ATOM] React Developer — Abr 2024 – Atual',
       '',
-      '| Área               | Descrição                                        |',
+      '| Area               | Descricao                                        |',
       '|--------------------|--------------------------------------------------|',
       '| SPAs & Dashboards  | Hooks modernos, Context API e React Query        |',
       '| UI/UX              | Framer Motion, Tailwind CSS, TypeScript          |',
-      '| Deploy & CI/CD     | Vercel com pipelines e deploys automáticos       |',
-      '| Componentes        | Design system próprio tipado end-to-end          |',
+      '| Deploy & CI/CD     | Vercel com pipelines e deploys automaticos       |',
+      '| Componentes        | Design system proprio tipado end-to-end          |',
       '',
-      '## <span style="display:inline-block;width:9px;height:9px;background:#4caf50;border-radius:50%;vertical-align:middle;margin:0 2px"></span> Node.js Backend — Abr 2024 – Atual',
+      '## [DOTGREEN] Node.js Backend — Abr 2024 – Atual',
       '',
-      '| Área               | Descrição                                        |',
+      '| Area               | Descricao                                        |',
       '|--------------------|--------------------------------------------------|',
       '| APIs REST          | Endpoints e middleware com Express.js            |',
-      '| Banco de Dados     | Integração com SQL e NoSQL                       |',
-      '| Autenticação       | JWT, OAuth e controle de sessão seguro           |',
+      '| Banco de Dados     | Integracao com SQL e NoSQL                       |',
+      '| Autenticacao       | JWT, OAuth e controle de sessao seguro           |',
       '| Deploy             | Servidores VPS e cloud                           |',
       '',
-      '## <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin:0 2px"><rect width="14" height="8" x="5" y="2" rx="2"/><rect width="20" height="12" x="2" y="10" rx="2"/><path d="M7 22v-2"/><path d="M17 22v-2"/></svg> Android Developer — Abr 2024 – Atual',
+      '## [ANDROID] Android Developer — Abr 2024 – Atual',
       '',
-      '| Área               | Descrição                                        |',
+      '| Area               | Descricao                                        |',
       '|--------------------|--------------------------------------------------|',
       '| Android Studio     | Desenvolvimento nativo com Kotlin                |',
-      '| Google Play        | Publicação e gerenciamento de versões            |',
-      '| Apps Híbridos      | WebView e Capacitor cross-platform               |',
+      '| Google Play        | Publicacao e gerenciamento de versoes            |',
+      '| Apps Hibridos      | WebView e Capacitor cross-platform               |',
       '',
-      '## <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin:0 2px"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06z"/><path d="M10 2c0 2.5 2 4 4 4"/></svg> iOS Developer — Abr 2024 – Atual',
+      '## [APPLE] iOS Developer — Abr 2024 – Atual',
       '',
-      '| Área               | Descrição                                        |',
+      '| Area               | Descricao                                        |',
       '|--------------------|--------------------------------------------------|',
       '| Xcode              | Simuladores iOS/iPadOS                           |',
       '| Capacitor          | Build iOS com bridge nativa                      |',
-      '| App Store          | Preparação e publicação de apps                  |',
+      '| App Store          | Preparacao e publicacao de apps                  |',
       '',
-      '## <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin:0 2px"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg> Oracle SQL & ERP Sankhya — Abr 2024 – Atual',
+      '## [DB] Oracle SQL & ERP Sankhya — Abr 2024 – Atual',
       '',
-      '| Área               | Descrição                                        |',
+      '| Area               | Descricao                                        |',
       '|--------------------|--------------------------------------------------|',
       '| Queries Complexas  | Joins, CTEs e window functions                   |',
       '| PL/SQL             | Procedures, functions e packages                 |',
-      '| ERP Sankhya        | Customizações, relatórios e API REST             |',
+      '| ERP Sankhya        | Customizacoes, relatorios e API REST             |',
     ],
     highlight(line) {
-      if (line.startsWith('# '))  return `<span class="h1">${esc(line)}</span>`;
-      if (line.startsWith('## ')) return `<span class="h2">${esc(line)}</span>`;
+      if (line.startsWith('# '))  return applyIcons(`<span class="h1">${esc(line)}</span>`);
+      if (line.startsWith('## ')) return applyIcons(`<span class="h2">${esc(line)}</span>`);
       if (line.startsWith('|')) {
         const cells = esc(line).split('|').map(c => c.trim()).filter(Boolean);
         if (cells.every(c => /^[-\s]+$/.test(c))) return `<span class="op">${esc(line)}</span>`;
-        return `<span style="color:var(--text-dim)">│</span>` +
-          cells.map((c, i) => `<span style="color:${i===0?'var(--yellow)':'var(--text)'}">${c}</span>`).join(`<span style="color:var(--text-dim)"> │ </span>`) +
-          `<span style="color:var(--text-dim)">│</span>`;
+        return `<span style="color:var(--text-dim)">|</span>` +
+          cells.map((c,i) => `<span style="color:${i===0?'var(--yellow)':'var(--text)'}">${c}</span>`).join(`<span style="color:var(--text-dim)"> | </span>`) +
+          `<span style="color:var(--text-dim)">|</span>`;
       }
       return esc(line);
     }
@@ -820,9 +853,9 @@ const FILES = {
     folder: 'connect',
     lang: 'Markdown',
     raw: [
-      '# <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin:0 2px"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Conecte-se Comigo',
+      '# [LINK] Conecte-se Comigo',
       '',
-      '## <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin:0 2px"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> Contato Direto',
+      '## [MAIL] Contato Direto',
       '',
       '| Canal      | Link                                             |',
       '|------------|--------------------------------------------------|',
@@ -831,7 +864,7 @@ const FILES = {
       '| Email      | [geansnswatch@gmail.com](mailto:geansnswatch@gmail.com) |',
       '| GitHub     | [geanoliveira99](https://github.com/geanoliveira99) |',
       '',
-      '## <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin:0 2px"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg> Empresa',
+      '## [BUILDING] Empresa',
       '',
       '| Info       | Detalhe                                          |',
       '|------------|--------------------------------------------------|',
@@ -839,55 +872,34 @@ const FILES = {
       '| Cargo      | Full Stack & Mobile Developer                    |',
       '| Desde      | Abril 2024                                       |',
       '',
-      '## <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin:0 2px"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Localização',
+      '## [GLOBE] Localizacao',
       '',
-      '> Brasil <span style="display:inline-block;font-size:9px;font-family:monospace;border:1px solid #3a5a7a;padding:0 3px;border-radius:2px;color:#c3e88d;vertical-align:middle;margin:0 2px">BR</span> · Disponível para projetos remotos',
+      '> Brasil [BR] · Disponivel para projetos remotos',
       '',
-      '## <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin:0 2px"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg> Status',
+      '## [BRIEFCASE] Status',
       '',
-      '> <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin:0 2px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Disponível para Projetos Freelance & Colaborações',
+      '> [CHECK] Disponivel para Projetos Freelance & Colaboracoes',
       '',
       '---',
       '',
-      '> "Código limpo hoje, manutenção fácil amanhã." — Gean',
+      '> "Codigo limpo hoje, manutencao facil amanha." — Gean',
     ],
     highlight(line) {
-      if (line.startsWith('# '))  return `<span class="h1">${esc(line)}</span>`;
-      if (line.startsWith('## ')) return `<span class="h2">${esc(line)}</span>`;
-      if (line.startsWith('> '))  return `<span class="c" style="color:#546e7a;border-left:3px solid var(--border);padding-left:8px">${esc(line.slice(2))}</span>`;
+      if (line.startsWith('# '))  return applyIcons(`<span class="h1">${esc(line)}</span>`);
+      if (line.startsWith('## ')) return applyIcons(`<span class="h2">${esc(line)}</span>`);
+      if (line.startsWith('> '))  return applyIcons(`<span class="c" style="color:#546e7a;border-left:3px solid var(--border);padding-left:8px">${esc(line.slice(2))}</span>`);
       if (line.startsWith('---')) return `<hr class="section-sep"/>`;
       if (line.startsWith('|')) {
         const cells = esc(line).split('|').map(c => c.trim()).filter(Boolean);
         if (cells.every(c => /^[-\s]+$/.test(c))) return `<span class="op">${esc(line)}</span>`;
-        return `<span style="color:var(--text-dim)">│</span>` +
-          cells.map((c, i) => `<span style="color:${i===0?'var(--yellow)':'var(--text)'}">${c.replace(/\[(.+?)\]\((.+?)\)/g,'<a class="md-link" href="$2" target="_blank">$1</a>')}</span>`).join(`<span style="color:var(--text-dim)"> │ </span>`) +
-          `<span style="color:var(--text-dim)">│</span>`;
+        return `<span style="color:var(--text-dim)">|</span>` +
+          cells.map((c,i) => `<span style="color:${i===0?'var(--yellow)':'var(--text)'}">${c.replace(/\[(.+?)\]\((.+?)\)/g,'<a class="md-link" href="$2" target="_blank">$1</a>')}</span>`).join(`<span style="color:var(--text-dim)"> | </span>`) +
+          `<span style="color:var(--text-dim)">|</span>`;
       }
       return esc(line);
     }
   }
 };
-
-// ═══════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════
-
-function esc(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function buildFile(key) {
-  const f = FILES[key];
-  if (!f) return;
-  const lnEl = document.getElementById('ln-' + key);
-  const codeEl = document.getElementById('code-' + key);
-  if (!lnEl || !codeEl) return;
-  if (lnEl.dataset.built) return; // already built
-  lnEl.dataset.built = '1';
-  lnEl.innerHTML = f.raw.map((_,i) => i+1).join('<br>');
-  codeEl.innerHTML = f.raw.map(l => f.highlight(l)).join('<br>');
-}
-
 // Pre-build all files
 Object.keys(FILES).forEach(buildFile);
 
