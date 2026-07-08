@@ -900,6 +900,27 @@ const FILES = {
     }
   }
 };
+
+// ═══════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function buildFile(key) {
+  const f = FILES[key];
+  if (!f) return;
+  const lnEl = document.getElementById('ln-' + key);
+  const codeEl = document.getElementById('code-' + key);
+  if (!lnEl || !codeEl) return;
+  if (lnEl.dataset.built) return;
+  lnEl.dataset.built = '1';
+  lnEl.innerHTML = f.raw.map((_,i) => i+1).join('<br>');
+  codeEl.innerHTML = f.raw.map(l => f.highlight(l)).join('<br>');
+}
+
 // Pre-build all files
 Object.keys(FILES).forEach(buildFile);
 
